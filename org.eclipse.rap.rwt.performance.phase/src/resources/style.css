@@ -1,0 +1,52 @@
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
+
+div#status {
+  margin: 10px;
+}
+
+div#header {
+  margin: 20px 10px 10px;
+  padding: 0 20px;
+}
+
+div#results {
+  margin: 10px;
+}
+
+div#recording-button {
+  padding: 5px 10px;
+  width: 200px;
+  background-color: #decece;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
+
+div#recording-button.recording {
+  background-color: #ee0000;
+}
+
+td, th {
+  margin: 1px;
+  padding: 2px 5px;
+  font-weight: normal;
+  background-color: #fdfdfd;
+  text-align: right;
+}
+
+th {
+  text-align: center;
+  background-color: #4142af;
+  color: white;
+}
+
+span.link {
+  cursor: pointer;
+  color: blue;
+}

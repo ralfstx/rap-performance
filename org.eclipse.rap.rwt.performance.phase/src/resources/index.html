@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Performance</title>
+  <link rel="stylesheet" type="text/css" href="./files/style.css"/>
+  <script type="text/javascript" src="./files/jquery-1.5.min.js"></script>
+</head>
+<body>
+
+  <div id="status">
+    <div id="recording-button"></div>
+  </div>
+
+  <div id="header">
+    <span id="index-link" class="link">index</span>
+  </div>
+
+  <div id="results">
+  </div>
+
+  <script type="text/javascript">
+
+    var createLink = function( text, func ) {
+      var link = $( '<span class="link">' + text + '</span>' );
+      link.click( func );
+      return link;
+    }
+
+    var processStatus = function( data ) {
+      var button = $( "#recording-button" );
+      if( data.active ) {
+        button.addClass( "recording" );
+        button.html( "stop recording" );
+      } else {
+        button.removeClass( "recording" );
+        button.html( "start recording" );
+      }
+    }
+
+    var createTableRow = function( values, isHeader ) {
+      var row = $( '<tr></tr>' );
+      for( var i = 0; i < values.length; i++ ) {
+        var cell = $( isHeader ? '<th></th>' : '<td></td>' );
+        cell.append( values[ i ] );
+        row.append( cell );
+      }
+      return row;
+    }
+
+    var createTable = function( data ) {
+      var table = $( '<table></table>' );
+      table.append( createTableRow( data.headers, true ) );
+      for( var i = 0; i < data.values.length; i++ ) {
+        table.append( createTableRow( data.values[ i ] ) );
+      }
+      return table;
+    }
+
+    var showTable = function( data ) {
+      var results = $( "#results" );
+      results.empty();
+      results.append( createTable( data ) );
+    }
+
+    var createProcessor = function( transform ) {
+      return function( data ) {
+        showTable( transform( data ) );
+      }
+    }
+
+    var formatTime = function( time ) {
+      var result = time / 1000;
+      return result.toFixed( 1 );
+    }
+
+    var trans_index = function( data ) {
+      data.headers[ 2 ] = "PREPARE";
+      data.headers[ 3 ] = "READ";
+      data.headers[ 4 ] = "PROCESS";
+      data.headers[ 5 ] = "RENDER";
+      for( var i = 0; i < data.values.length; i++ ) {
+        var values = data.values[ i ];
+        var name = values[ 0 ];
+        var link = createLink( name, function() {
+          request( "results/" + name, createProcessor( trans_run ) );
+        } );
+        values[ 0 ] = link;
+        for( var j = 2; j < values.length; j++ ) {
+          values[ j ] = formatTime( values[ j ] );
+        }
+      }
+      return data;
+    }
+
+    var trans_run = function( data ) {
+      var phases = [ "PREPARE", "READ", "PROCESS", "RENDER" ];
+      for( var i = 0; i < data.values.length; i++ ) {
+        var values = data.values[ i ];
+        values[ 1 ] = phases[ values[ 1 ] ];
+        for( var j = 2; j < values.length; j++ ) {
+          values[ j ] = formatTime( values[ j ] );
+        }
+      }
+      return data;
+    }
+
+    var request = function( command, func ) {
+      $.get( command, func, "json" );
+    }
+
+    $( document ).ready( function() {
+      request( "status", processStatus );
+      $( "#recording-button" ).click( function() {
+        var recording = $( this ).hasClass( "recording" );
+        var command = recording ? "stop" : "start";
+        request( command, processStatus );
+      } );
+      $( "#index-link" ).click( function() {
+        request( "results", createProcessor( trans_index ) );
+      } );
+    } );
+  </script>
+
+</body>
+</html>
