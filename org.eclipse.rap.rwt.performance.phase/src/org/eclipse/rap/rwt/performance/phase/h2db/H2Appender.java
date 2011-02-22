@@ -18,6 +18,7 @@ import java.sql.Statement;
 import org.eclipse.rap.rwt.performance.phase.Appender;
 import org.eclipse.rap.rwt.performance.phase.PhaseRecord;
 import org.eclipse.rap.rwt.performance.phase.h2db.MeasurementIndex.MeasurementRun;
+import org.eclipse.rwt.lifecycle.PhaseId;
 
 
 public class H2Appender implements Appender {
@@ -92,7 +93,7 @@ public class H2Appender implements Appender {
     synchronized( lock ) {
       insertStatement.setString( 1, record.getSessionId() );
       insertStatement.setInt( 2, record.getRequestId() );
-      insertStatement.setInt( 3, record.getPhaseId() );
+      insertStatement.setInt( 3, translatePhase( record.getPhaseId() ) );
       insertStatement.setLong( 4, record.getStartTime() );
       insertStatement.setLong( 5, record.getDuration() );
       insertStatement.execute();
@@ -136,5 +137,21 @@ public class H2Appender implements Appender {
       statement.close();
     }
     return avgs;
+  }
+
+  static int translatePhase( PhaseId phaseId ) {
+    int result;
+    if( phaseId == PhaseId.PREPARE_UI_ROOT ) {
+      result = 0;
+    } else if( phaseId == PhaseId.READ_DATA ) {
+      result = 1;
+    } else if( phaseId == PhaseId.PROCESS_ACTION ) {
+      result = 2;
+    } else if( phaseId == PhaseId.RENDER ) {
+      result = 3;
+    } else {
+      throw new IllegalArgumentException( "Illegal phase " + phaseId );
+    }
+    return result;
   }
 }

@@ -99,7 +99,7 @@ public class RequestTracker_Test extends TestCase {
     PhaseRecord firstRecord = log.get( 0 );
     assertEquals( "session-4711", firstRecord.getSessionId() );
     assertEquals( 3, firstRecord.getRequestId() );
-    assertEquals( 1, firstRecord.getPhaseId() );
+    assertEquals( PhaseId.READ_DATA, firstRecord.getPhaseId() );
     assertTrue( firstRecord.getStartTime() > 0 );
     assertTrue( firstRecord.getDuration() > 0 );
   }

@@ -1,16 +1,18 @@
 package org.eclipse.rap.rwt.performance.phase;
 
+import org.eclipse.rwt.lifecycle.PhaseId;
+
 
 public class PhaseRecord {
   private final String sessionId;
   private final int requestId;
-  private final int phaseId;
+  private final PhaseId phaseId;
   private final long startTime;
   private final long duration;
 
   public PhaseRecord( final String sessionId,
                       final int requestCounter,
-                      final int phaseId,
+                      final PhaseId phaseId,
                       final long startTime,
                       final long duration )
   {
@@ -29,7 +31,7 @@ public class PhaseRecord {
     return requestId;
   }
 
-  public int getPhaseId() {
+  public PhaseId getPhaseId() {
     return phaseId;
   }
 

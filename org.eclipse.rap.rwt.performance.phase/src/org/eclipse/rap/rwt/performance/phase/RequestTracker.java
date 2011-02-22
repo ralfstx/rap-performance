@@ -36,25 +36,8 @@ public class RequestTracker {
     currentPhaseId = null;
     long endTime = System.nanoTime();
     long duration = endTime - startTime;
-    int phase = getPhaseId( phaseId );
     PhaseRecord record
-      = new PhaseRecord( sessionId, requestId, phase, startTime, duration );
+      = new PhaseRecord( sessionId, requestId, phaseId, startTime, duration );
     AppenderFactory.getAppender().append( record );
-  }
-
-  private static int getPhaseId( PhaseId phaseId ) {
-    int result;
-    if( phaseId == PhaseId.PREPARE_UI_ROOT ) {
-      result = 0;
-    } else if( phaseId == PhaseId.READ_DATA ) {
-      result = 1;
-    } else if( phaseId == PhaseId.PROCESS_ACTION ) {
-      result = 2;
-    } else if( phaseId == PhaseId.RENDER ) {
-      result = 3;
-    } else {
-      throw new IllegalArgumentException( "Illegal phase " + phaseId );
-    }
-    return result;
   }
 }
