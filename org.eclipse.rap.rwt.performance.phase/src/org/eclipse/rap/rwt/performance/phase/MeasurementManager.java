@@ -14,6 +14,7 @@ public final class MeasurementManager {
 
   private final Object lock = new Object();
   private H2Connector connector;
+  private H2Appender appender;
   
   MeasurementManager() {
     // package internal instantiation only
@@ -24,8 +25,8 @@ public final class MeasurementManager {
       if( connector == null ) {
         String dbName = createDbName();
         connector = H2ConnectorFactory.getConnector( dbName );
-        H2Appender appender = new H2Appender( connector );
-        appender.initialize();
+        appender = new H2Appender( connector );
+        appender.initialize( 66000 );
         AppenderFactory.setAppender( appender );
       }
     }
@@ -36,10 +37,11 @@ public final class MeasurementManager {
       if( connector != null ) {
         try {
           AppenderFactory.setAppender( null );
-          H2Appender appender = new H2Appender( connector );
+          appender.finish();
           MeasurementRun summary = appender.getSummary();
           addRun( summary );
         } finally {
+          appender = null;
           connector.close();
           connector = null;
         }

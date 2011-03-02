@@ -38,10 +38,11 @@ public class H2Appender_Test extends TestCase {
 
   public void testAppend() throws SQLException {
     H2Appender appender = new H2Appender( connector );
-    appender.initialize();
+    appender.initialize( 10 );
     PhaseId phaseId = PhaseId.RENDER;
     PhaseRecord record = new PhaseRecord( "session23", 23, phaseId, 4711, 42 );
     appender.append( record );
+    appender.finish();
     Statement statement = connector.getConnection().createStatement();
     ResultSet resultSet = statement.executeQuery( "SELECT * FROM phases" );
     resultSet.next();
@@ -53,4 +54,20 @@ public class H2Appender_Test extends TestCase {
     assertEquals( record.getDuration(), resultSet.getInt( "DURATION" ) );
     assertFalse( resultSet.next() );
   }
+
+  public void testAppendTooOften() {
+    H2Appender appender = new H2Appender( connector );
+    appender.initialize( 2 );
+    PhaseId render = PhaseId.RENDER;
+    appender.append( new PhaseRecord( "session23", 1, render, 4711, 42 ) );
+    appender.append( new PhaseRecord( "session23", 2, render, 4711, 42 ) );
+    try {
+      appender.append( new PhaseRecord( "session23", 3, render, 4711, 42 ) );
+      fail();
+    } catch( IllegalStateException e ) {
+      // expected
+    }
+  }
+
+  
 }

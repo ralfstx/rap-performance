@@ -1,5 +1,6 @@
 package org.eclipse.rap.rwt.performance.phase;
 
+import org.eclipse.rwt.internal.lifecycle.RWTRequestVersionControl;
 import org.eclipse.rwt.lifecycle.PhaseId;
 
 
@@ -36,6 +37,10 @@ public class RequestTracker {
     currentPhaseId = null;
     long endTime = System.nanoTime();
     long duration = endTime - startTime;
+    boolean valid = RWTRequestVersionControl.isValid();
+    if( !valid ) {
+      throw new IllegalStateException( "grrr" );
+    }
     PhaseRecord record
       = new PhaseRecord( sessionId, requestId, phaseId, startTime, duration );
     AppenderFactory.getAppender().append( record );

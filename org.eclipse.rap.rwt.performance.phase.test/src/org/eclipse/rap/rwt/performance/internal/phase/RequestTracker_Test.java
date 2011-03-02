@@ -9,6 +9,7 @@ import org.eclipse.rap.rwt.performance.phase.Appender;
 import org.eclipse.rap.rwt.performance.phase.AppenderFactory;
 import org.eclipse.rap.rwt.performance.phase.PhaseRecord;
 import org.eclipse.rap.rwt.performance.phase.RequestTracker;
+import org.eclipse.rwt.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 
 
@@ -18,6 +19,7 @@ public class RequestTracker_Test extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
+    Fixture.setUp();
     log = new ArrayList<PhaseRecord>();
     AppenderFactory.setAppender( new Appender() {
       
@@ -31,6 +33,7 @@ public class RequestTracker_Test extends TestCase {
   @Override
   protected void tearDown() throws Exception {
     AppenderFactory.setAppender( null );
+    Fixture.tearDown();
   }
 
   public void testNanoTime() {

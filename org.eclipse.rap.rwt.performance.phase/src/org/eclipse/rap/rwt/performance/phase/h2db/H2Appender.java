@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.rap.rwt.performance.phase.Appender;
 import org.eclipse.rap.rwt.performance.phase.PhaseRecord;
@@ -26,13 +27,17 @@ public class H2Appender implements Appender {
   private final Object lock = new Object();
   private final H2Connector connector;
   private PreparedStatement insertStatement;
+  private PhaseRecord[] buffer;
+  private AtomicInteger fill;
 
   public H2Appender( H2Connector connector ) {
     this.connector = connector;
   }
 
-  public void initialize() {
+  public void initialize( int size ) {
     try {
+      fill = new AtomicInteger( 0 );
+      buffer = new PhaseRecord[ size ];
       createTableIfMissing();
       prepareInsertStatement();
     } catch( SQLException e ) {
@@ -42,8 +47,19 @@ public class H2Appender implements Appender {
   }
 
   public void append( PhaseRecord record ) {
+    int i = fill.getAndIncrement();
+    if( i >= buffer.length ) {
+      throw new IllegalStateException( "append count exceeds buffer size" );
+    }
+    buffer[ i ] = record;
+  }
+
+  public void finish() {
     try {
-      insertRecord( record );
+      int length = fill.get();
+      for( int i = 0; i < length; i++ ) {
+        insertRecord( buffer[ i ] );
+      }
     } catch( SQLException e ) {
       String message = "Failed to write record to database: " + e.getMessage();
       throw new RuntimeException( message, e );
